@@ -1,0 +1,23 @@
+.gallery {
+  display: flex;
+  flex-wrap: wrap;
+  margin-left: -20px;
+  margin-bottom: -20px;
+
+}
+
+.photo-card {
+  margin-left: 20px;
+  margin-bottom: 20px;
+  flex-basis: calc((100% - 80px) / 4);
+}
+
+
+.info {
+  display: flex;
+  justify-content: space-between;
+}
+
+.info-item span {
+  display: block;
+}
