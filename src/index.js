@@ -5,17 +5,68 @@ import { Notify } from 'notiflix/build/notiflix-notify-aio';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 
+refs.loadMoreBtn.classList.add('is-hidden');
 refs.searchForm.addEventListener('submit', handleSearchFormSubmit);
+refs.loadMoreBtn.addEventListener('click', handleLoadMoreBtnClick);
 
-function handleSearchFormSubmit(e) {
+let inputValue = '';
+let pages = 0;
+const lightbox = new SimpleLightbox('.gallery a');
+const api = new ApiService();
+
+async function handleSearchFormSubmit(e) {
   e.preventDefault();
-  const inputValue = e.currentTarget.elements.searchQuery.value.trim().replace(' ', '+');
-  const api = new ApiService({ inputValue });
-  api.fetchPhotos().then(res => {
-    if (!res.length) {
-      Notify.failure('Sorry, there are no images matching your search query. Please try again.');
-      return;
-    }
-    renderGalleryMarkup(res);
-  });
+  inputValue = e.currentTarget.elements.searchQuery.value.trim().replace(' ', '+');
+  if (!inputValue) {
+    clearMarkup();
+    Notify.failure('Please fill in the search field');
+    refs.loadMoreBtn.classList.add('is-hidden');
+    return;
+  }
+  api.resetPage();
+  const res = await api.fetchPhotos(inputValue);
+  loadFirstPage(res);
+}
+
+function loadFirstPage({ hits, totalHits }) {
+  if (!hits.length) {
+    clearMarkup();
+    refs.loadMoreBtn.classList.add('is-hidden');
+    Notify.failure('Sorry, there are no images matching your search query. Please try again.');
+    return;
+  }
+  pages = Math.ceil(totalHits / hits.length);
+  clearMarkup();
+  renderGalleryMarkup(hits);
+
+  if (api.page === pages) {
+    refs.loadMoreBtn.classList.add('is-hidden');
+  } else {
+    refs.loadMoreBtn.classList.remove('is-hidden');
+  }
+  Notify.success(`Hooray! We found ${totalHits} images.`);
+  lightbox.refresh();
+}
+
+async function handleLoadMoreBtnClick(e) {
+  e.target.classList.add('is-hidden');
+  api.incrementPage();
+  const res = await api.fetchPhotos(inputValue);
+  loadNextPage(res);
+}
+
+function loadNextPage(res) {
+  renderGalleryMarkup(res.hits);
+  if (api.page === pages) {
+    refs.loadMoreBtn.classList.add('is-hidden');
+    Notify.info("We're sorry, but you've reached the end of search results.");
+    lightbox.refresh();
+    return;
+  }
+  refs.loadMoreBtn.classList.remove('is-hidden');
+  lightbox.refresh();
+}
+
+function clearMarkup() {
+  refs.galleryDiv.innerHTML = '';
 }
