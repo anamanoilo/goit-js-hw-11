@@ -10,7 +10,7 @@ refs.searchForm.addEventListener('submit', handleSearchFormSubmit);
 refs.loadMoreBtn.addEventListener('click', handleLoadMoreBtnClick);
 
 let inputValue = '';
-let pages = 0;
+let totalPages = 0;
 const lightbox = new SimpleLightbox('.gallery a');
 const api = new ApiService();
 
@@ -39,11 +39,11 @@ function loadFirstPage({ hits, totalHits }) {
     Notify.failure('Sorry, there are no images matching your search query. Please try again.');
     return;
   }
-  pages = Math.ceil(totalHits / hits.length);
+  totalPages = Math.ceil(totalHits / hits.length);
   clearMarkup();
   renderGalleryMarkup(hits);
 
-  if (api.page === pages) {
+  if (api.page === totalPages) {
     refs.loadMoreBtn.classList.add('is-hidden');
   } else {
     refs.loadMoreBtn.classList.remove('is-hidden');
@@ -65,7 +65,7 @@ async function handleLoadMoreBtnClick(e) {
 
 function loadNextPage(res) {
   renderGalleryMarkup(res.hits);
-  if (api.page === pages) {
+  if (api.page === totalPages) {
     refs.loadMoreBtn.classList.add('is-hidden');
     Notify.info("We're sorry, but you've reached the end of search results.");
     lightbox.refresh();
