@@ -28,7 +28,7 @@ async function handleSearchFormSubmit(e) {
     const res = await api.fetchPhotos(inputValue);
     loadFirstPage(res);
   } catch (error) {
-    console.error(error);
+    handleError(error);
   }
 }
 
@@ -59,7 +59,7 @@ async function handleLoadMoreBtnClick(e) {
     const res = await api.fetchPhotos(inputValue);
     loadNextPage(res);
   } catch (error) {
-    console.error(error);
+    handleError(error);
   }
 }
 
@@ -77,4 +77,9 @@ function loadNextPage(res) {
 
 function clearMarkup() {
   refs.galleryDiv.innerHTML = '';
+}
+
+function handleError(error) {
+  console.error(error);
+  Notify.failure('Something went wrong.Please try again');
 }
