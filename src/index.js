@@ -5,7 +5,7 @@ import { Notify } from 'notiflix/build/notiflix-notify-aio';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 
-refs.loadMoreBtn.classList.add('is-hidden');
+hideButton();
 refs.searchForm.addEventListener('submit', handleSearchFormSubmit);
 refs.loadMoreBtn.addEventListener('click', handleLoadMoreBtnClick);
 
@@ -16,11 +16,10 @@ const api = new ApiService();
 
 async function handleSearchFormSubmit(e) {
   e.preventDefault();
+  clearMarkup();
   inputValue = e.currentTarget.elements.searchQuery.value.trim().replace(' ', '+');
   if (!inputValue) {
-    clearMarkup();
     Notify.failure('Please fill in the search field');
-    refs.loadMoreBtn.classList.add('is-hidden');
     return;
   }
   api.resetPage();
@@ -33,20 +32,15 @@ async function handleSearchFormSubmit(e) {
 }
 
 function loadFirstPage({ hits, totalHits }) {
+  clearMarkup();
   if (!hits.length) {
-    clearMarkup();
-    refs.loadMoreBtn.classList.add('is-hidden');
     Notify.failure('Sorry, there are no images matching your search query. Please try again.');
     return;
   }
   totalPages = Math.ceil(totalHits / hits.length);
-  clearMarkup();
   renderGalleryMarkup(hits);
-
-  if (api.page === totalPages) {
-    refs.loadMoreBtn.classList.add('is-hidden');
-  } else {
-    refs.loadMoreBtn.classList.remove('is-hidden');
+  if (api.page !== totalPages) {
+    showButton();
   }
   Notify.success(`Hooray! We found ${totalHits} images.`);
   lightbox.refresh();
@@ -66,20 +60,28 @@ async function handleLoadMoreBtnClick(e) {
 function loadNextPage(res) {
   renderGalleryMarkup(res.hits);
   if (api.page === totalPages) {
-    refs.loadMoreBtn.classList.add('is-hidden');
+    hideButton();
     Notify.info("We're sorry, but you've reached the end of search results.");
     lightbox.refresh();
     return;
   }
-  refs.loadMoreBtn.classList.remove('is-hidden');
+  showButton();
   lightbox.refresh();
 }
 
 function clearMarkup() {
+  hideButton();
   refs.galleryDiv.innerHTML = '';
 }
 
 function handleError(error) {
   console.error(error);
   Notify.failure('Something went wrong.Please try again');
+}
+
+function hideButton() {
+  refs.loadMoreBtn.classList.add('is-hidden');
+}
+function showButton() {
+  refs.loadMoreBtn.classList.remove('is-hidden');
 }
