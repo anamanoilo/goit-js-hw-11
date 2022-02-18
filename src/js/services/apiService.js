@@ -16,12 +16,8 @@ class ApiService {
       page: this.#page,
       per_page: 40,
     });
-    try {
-      const response = await axios.get(`?${queryParams}`);
-      return response.data;
-    } catch (error) {
-      console.error(error);
-    }
+    const response = await axios.get(`?${queryParams}`);
+    return response.data;
   }
 
   get page() {

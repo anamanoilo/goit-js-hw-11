@@ -24,8 +24,12 @@ async function handleSearchFormSubmit(e) {
     return;
   }
   api.resetPage();
-  const res = await api.fetchPhotos(inputValue);
-  loadFirstPage(res);
+  try {
+    const res = await api.fetchPhotos(inputValue);
+    loadFirstPage(res);
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 function loadFirstPage({ hits, totalHits }) {
@@ -51,8 +55,12 @@ function loadFirstPage({ hits, totalHits }) {
 async function handleLoadMoreBtnClick(e) {
   e.target.classList.add('is-hidden');
   api.incrementPage();
-  const res = await api.fetchPhotos(inputValue);
-  loadNextPage(res);
+  try {
+    const res = await api.fetchPhotos(inputValue);
+    loadNextPage(res);
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 function loadNextPage(res) {
